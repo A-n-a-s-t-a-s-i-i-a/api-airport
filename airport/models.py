@@ -1,3 +1,6 @@
+from multiprocessing.managers import Value
+
+from django.conf import settings
 from django.db import models
 
 from user.models import User
@@ -62,7 +65,7 @@ class Flight(models.Model):
 
 class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"Order {self.id} by {self.user}"
@@ -74,5 +77,20 @@ class Ticket(models.Model):
     flight = models.ForeignKey(Flight, on_delete=models.CASCADE)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["row", "seat", "flight"], name="unique_ticket")
+        ]
+
     def __str__(self):
         return f"Ticket {self.row}-{self.seat} on flight {self.flight}"
+
+    def clean(self):
+        if not (1 <= self.row <= self.flight.airplane.rows):
+            raise ValueError(f"row must be in range (1, {self.flight.airplane.rows})")
+        if not (1 <= self.seat <= self.flight.airplane.seats_in_row):
+            raise ValueError(f"seat must be in range (1, {self.flight.airplane.seats_in_row})")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)

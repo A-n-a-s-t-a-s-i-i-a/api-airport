@@ -9,10 +9,21 @@ class AirportSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class AirportPartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Airport
+        fields = ("name",)
+
+
 class RouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
-        fields = '__all__'
+        fields = ("id", "source", "destination", "distance")
+
+
+class RouteListSerializer(RouteSerializer):
+    source = AirportListSerializer()
+    destination = AirportListSerializer()
 
 
 class AirplaneTypeSerializer(serializers.ModelSerializer):
@@ -27,6 +38,10 @@ class AirplaneSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class AirplaneListSerializer(AirplaneSerializer):
+    airplane_type = AirplaneTypeSerializer()
+
+
 class CrewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Crew
@@ -36,7 +51,12 @@ class CrewSerializer(serializers.ModelSerializer):
 class FlightSerializer(serializers.ModelSerializer):
     class Meta:
         model = Flight
-        fields = '__all__'
+        fields = ("id", "route", "airplane", "departure_time", "arrival_time", "crew")
+
+
+class FlightListSerializer(FlightSerializer):
+    airplane = AirplaneSerializer()
+    crew = CrewSerializer(many=True)
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -48,5 +68,9 @@ class OrderSerializer(serializers.ModelSerializer):
 class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
-        fields = '__all__'
+        fields = ("id", "row", "seat", "flight", "order")
 
+
+class TicketListSerializer(TicketSerializer):
+    flight = FlightSerializer()
+    order = OrderSerializer()
