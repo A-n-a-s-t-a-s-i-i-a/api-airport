@@ -1,9 +1,5 @@
-from multiprocessing.managers import Value
-
 from django.conf import settings
 from django.db import models
-
-from user.models import User
 
 
 class Airport(models.Model):
@@ -86,9 +82,7 @@ class Ticket(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="tickets")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["row", "seat", "flight"], name="unique_ticket")
-        ]
+        unique_together = ("row", "seat", "flight")
 
     def __str__(self):
         return f"Ticket {self.row}-{self.seat} on flight {self.flight}"
