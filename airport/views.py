@@ -1,3 +1,4 @@
+from django.db.models import Count, F
 from rest_framework import viewsets
 
 from airport.models import Airport, Route, AirplaneType, Airplane, Crew, Order, Ticket, Flight
@@ -39,6 +40,11 @@ class AirplaneTypeViewSet(viewsets.ModelViewSet):
 class AirplaneViewSet(viewsets.ModelViewSet):
     queryset = Airplane.objects.all()
 
+    @staticmethod
+    def _params_to_ints(qs):
+        """Converts a list of string IDs to a list of integers"""
+        return [int(str_id) for str_id in qs.split(",")]
+
     def get_serializer_class(self):
         if self.action == "list":
             return AirplaneListSerializer
@@ -47,9 +53,22 @@ class AirplaneViewSet(viewsets.ModelViewSet):
         return AirplaneSerializer
 
     def get_queryset(self):
+        queryset = self.queryset
+
+        airplane_type = self.request.query_params.get("airplane_type")
+        seats_in_row = self.request.query_params.get("seats_in_row")
+
+        if airplane_type:
+            queryset = queryset.filter(airplane_type__name__icontains=airplane_type)
+
+        if seats_in_row:
+            seats = self._params_to_ints(seats_in_row)
+            queryset = queryset.filter(seats_in_row__in=seats)
+
         if self.action in ["list", "retrieve"]:
-            return self.queryset.select_related()
-        return self.queryset
+            queryset = queryset.select_related()
+
+        return queryset.distinct()
 
 
 class CrewViewSet(viewsets.ModelViewSet):
@@ -69,7 +88,8 @@ class FlightViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.action in ["list", "retrieve"]:
-            return self.queryset.prefetch_related("crew")
+            return (self.queryset.prefetch_related("crew")
+                    .annotate(available_seats=F("airplane__rows") *F("airplane__seats_in_row") - Count("ticket")))
         return self.queryset
 
 

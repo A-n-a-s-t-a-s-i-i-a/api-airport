@@ -43,6 +43,10 @@ class Airplane(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def number_of_seats(self):
+        return self.seats_in_row * self.rows
+
 
 class Crew(models.Model):
     first_name = models.CharField(max_length=255)
@@ -87,11 +91,23 @@ class Ticket(models.Model):
     def __str__(self):
         return f"Ticket {self.row}-{self.seat} on flight {self.flight}"
 
+    @property
+    def row_seat(self):
+        return f"row:{self.row}-seat:{self.seat}"
+
+    @staticmethod
+    def validate_row_seat(row: int, seat: int, rows: int,
+                          seats_in_row: int, error_to_raise):
+        if not (1 <= row <= rows):
+            raise error_to_raise(f"row must be in range (1, {rows})")
+        if not (1 <= seat <= seats_in_row):
+            raise error_to_raise(f"seat must be in range (1, {seats_in_row})")
+
     def clean(self):
-        if not (1 <= self.row <= self.flight.airplane.rows):
-            raise ValueError(f"row must be in range (1, {self.flight.airplane.rows})")
-        if not (1 <= self.seat <= self.flight.airplane.seats_in_row):
-            raise ValueError(f"seat must be in range (1, {self.flight.airplane.seats_in_row})")
+        Ticket.validate_row_seat(self.row, self.seat,
+                                 self.flight.airplane.rows,
+                                 self.flight.airplane.seats_in_row,
+                                 ValueError)
 
     def save(self, *args, **kwargs):
         self.full_clean()
