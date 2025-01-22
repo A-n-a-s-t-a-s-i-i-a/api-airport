@@ -26,6 +26,10 @@ class Route(models.Model):
     def __str__(self):
         return f"{self.source} -> {self.destination}"
 
+    @property
+    def from_to(self):
+        return f"{self.source} -> {self.destination}"
+
 
 class AirplaneType(models.Model):
     name = models.CharField(max_length=255)
@@ -49,6 +53,10 @@ class Crew(models.Model):
     last_name = models.CharField(max_length=255)
 
     def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
+    @property
+    def full_name(self):
         return f"{self.first_name} {self.last_name}"
 
 
@@ -75,7 +83,7 @@ class Ticket(models.Model):
     row = models.IntegerField()
     seat = models.IntegerField()
     flight = models.ForeignKey(Flight, on_delete=models.CASCADE)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="tickets")
 
     class Meta:
         constraints = [
