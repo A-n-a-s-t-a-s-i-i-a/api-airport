@@ -1,6 +1,5 @@
 from django.db import transaction
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 
 from airport.models import Airport, Route, AirplaneType, Airplane, Crew, Flight, Order, Ticket
 
@@ -108,6 +107,7 @@ class TicketSerializer(serializers.ModelSerializer):
         fields = ("id", "row", "seat", "flight")
 
     def validate(self, attrs):
+        data = super(TicketSerializer, self).validate(attrs)
         Ticket.validate_row_seat(
             attrs["row"],
             attrs["seat"],
@@ -115,6 +115,7 @@ class TicketSerializer(serializers.ModelSerializer):
             attrs["flight"].airplane.seats_in_row,
             serializers.ValidationError
         )
+        return data
 
 
 class TicketListSerializer(TicketSerializer):

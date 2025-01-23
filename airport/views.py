@@ -1,5 +1,6 @@
 from django.db.models import Count, F
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.response import Response
 
 from airport.models import Airport, Route, AirplaneType, Airplane, Crew, Order, Ticket, Flight
 from airport.serializers import (AirportSerializer, RouteSerializer,
@@ -117,6 +118,10 @@ class TicketViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.action in ["list", "retrieve"]:
             return self.queryset.select_related()
-        return self.queryset
 
+    def create(self, request, *args, **kwargs):
+        return Response(
+            {"detail": "Tickets cannot be created directly. Use the Order endpoint."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
