@@ -1,6 +1,7 @@
 from django.db.models import Count, F
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, status
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
@@ -18,14 +19,12 @@ from airport.serializers import (AirportSerializer, RouteSerializer,
 class AirportViewSet(viewsets.ModelViewSet):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
-    authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
 
 
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all()
-    authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
     def get_serializer_class(self):
@@ -44,13 +43,11 @@ class RouteViewSet(viewsets.ModelViewSet):
 class AirplaneTypeViewSet(viewsets.ModelViewSet):
     queryset = AirplaneType.objects.all()
     serializer_class = AirplaneTypeSerializer
-    authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
 
 class AirplaneViewSet(viewsets.ModelViewSet):
     queryset = Airplane.objects.all()
-    authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
     @staticmethod
@@ -83,17 +80,34 @@ class AirplaneViewSet(viewsets.ModelViewSet):
 
         return queryset.distinct()
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "airplane_type",
+                OpenApiTypes.STR,
+                description="The type of airplane to list",
+            ),
+            OpenApiParameter(
+                "seats_in_row",
+                OpenApiTypes.STR,
+                description="Filtering by an array of seats (comma separated)",
+            )
+        ]
+    )
+
+    def list(self, request):
+        """ List all available airplanes """
+        return super().list(request)
+
 
 class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
-    authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
 
 class FlightViewSet(viewsets.ModelViewSet):
     queryset = Flight.objects.all()
-    authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
     def get_serializer_class(self):
@@ -113,7 +127,6 @@ class FlightViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
@@ -125,7 +138,6 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
-    authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAdminUser,)
 
     def get_serializer_class(self):
