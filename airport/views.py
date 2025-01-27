@@ -6,7 +6,6 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 from airport.models import Airport, Route, AirplaneType, Airplane, Crew, Order, Ticket, Flight
-from airport.permissions import IsAdminAllOrIsAuthenticatedReadOnly
 from airport.serializers import (AirportSerializer, RouteSerializer,
                                  AirplaneTypeSerializer, AirplaneSerializer,
                                  CrewSerializer, OrderSerializer,
@@ -19,13 +18,11 @@ from airport.serializers import (AirportSerializer, RouteSerializer,
 class AirportViewSet(viewsets.ModelViewSet):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
-    permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
 
 
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all()
-    permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -43,12 +40,10 @@ class RouteViewSet(viewsets.ModelViewSet):
 class AirplaneTypeViewSet(viewsets.ModelViewSet):
     queryset = AirplaneType.objects.all()
     serializer_class = AirplaneTypeSerializer
-    permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
 
 class AirplaneViewSet(viewsets.ModelViewSet):
     queryset = Airplane.objects.all()
-    permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
     @staticmethod
     def _params_to_ints(qs):
@@ -103,12 +98,10 @@ class AirplaneViewSet(viewsets.ModelViewSet):
 class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
-    permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
 
 class FlightViewSet(viewsets.ModelViewSet):
     queryset = Flight.objects.all()
-    permission_classes = (IsAdminAllOrIsAuthenticatedReadOnly,)
 
     def get_serializer_class(self):
         if self.action == "list":
