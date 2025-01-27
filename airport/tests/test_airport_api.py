@@ -8,10 +8,29 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 
-from airport.models import Airport, Route, AirplaneType, Airplane, Crew, Flight, Order, Ticket
-from airport.serializers import AirportSerializer, RouteSerializer, AirplaneSerializer, CrewSerializer, \
-    FlightSerializer, OrderSerializer, TicketSerializer, AirplaneListSerializer, AirplaneRetrieveSerializer, \
-    FlightListSerializer, FlightRetrieveSerializer
+from airport.models import (
+    Airport,
+    Route,
+    AirplaneType,
+    Airplane,
+    Crew,
+    Flight,
+    Order,
+    Ticket,
+)
+from airport.serializers import (
+    AirportSerializer,
+    RouteSerializer,
+    AirplaneSerializer,
+    CrewSerializer,
+    FlightSerializer,
+    OrderSerializer,
+    TicketSerializer,
+    AirplaneListSerializer,
+    AirplaneRetrieveSerializer,
+    FlightListSerializer,
+    FlightRetrieveSerializer,
+)
 from airport.views import FlightViewSet
 
 AIRPORT_URL = reverse("airport:airport-list")
@@ -21,6 +40,7 @@ FLIGHT_URL = reverse("airport:flight-list")
 ORDER_URL = reverse("airport:order-list")
 TICKET_URL = reverse("airport:ticket-list")
 
+
 def sample_airport(**params):
     defaults = {
         "name": "Test Airport",
@@ -28,6 +48,7 @@ def sample_airport(**params):
     }
     defaults.update(params)
     return Airport.objects.create(**defaults)
+
 
 def sample_route(**params):
     source = sample_airport(name="Source Airport")
@@ -40,12 +61,14 @@ def sample_route(**params):
     defaults.update(params)
     return Route.objects.create(**defaults)
 
+
 def sample_airplane_type(**params):
     defaults = {
         "name": "Test Type",
     }
     defaults.update(params)
     return AirplaneType.objects.create(**defaults)
+
 
 def sample_airplane(**params):
     airplane_type = sample_airplane_type()
@@ -58,6 +81,7 @@ def sample_airplane(**params):
     defaults.update(params)
     return Airplane.objects.create(**defaults)
 
+
 def sample_crew(**params):
     defaults = {
         "first_name": "John",
@@ -65,6 +89,7 @@ def sample_crew(**params):
     }
     defaults.update(params)
     return Crew.objects.create(**defaults)
+
 
 def sample_flight(**params):
     route = sample_route()
@@ -80,6 +105,7 @@ def sample_flight(**params):
     flight.crew.add(sample_crew())
     return flight
 
+
 def sample_order(**params):
     user = get_user_model().objects.create_user("test@test.com", "password")
     defaults = {
@@ -87,6 +113,7 @@ def sample_order(**params):
     }
     defaults.update(params)
     return Order.objects.create(**defaults)
+
 
 def sample_ticket(**params):
     flight = sample_flight()
@@ -100,12 +127,14 @@ def sample_ticket(**params):
     defaults.update(params)
     return Ticket.objects.create(**defaults)
 
+
 def create_airplane_with_type(name, airplane_type_name):
     airplane = sample_airplane(name=name)
     airplane_type = AirplaneType.objects.create(name=airplane_type_name)
     airplane.airplane_type = airplane_type
     airplane.save()
     return airplane
+
 
 def detail_url(airplane_id):
     return reverse("airport:airplane-detail", args=(airplane_id,))
@@ -176,9 +205,7 @@ class AuthenticatedApiTests(TestCase):
         airplane2 = sample_airplane(seats_in_row=5)
         airplane3 = sample_airplane(seats_in_row=6)
 
-        res = self.client.get(AIRPLANE_URL,
-                              {"seats_in_row": "4, 5"}
-                              )
+        res = self.client.get(AIRPLANE_URL, {"seats_in_row": "4, 5"})
 
         serializer1 = AirplaneListSerializer(airplane1)
         serializer2 = AirplaneListSerializer(airplane2)
@@ -293,10 +320,13 @@ class AuthenticatedApiTests(TestCase):
         tickets = order.tickets.all()
         self.assertEqual(tickets.count(), 2)
 
+
 class AdminApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = get_user_model().objects.create_user("admin", "password", is_staff=True)
+        self.user = get_user_model().objects.create_user(
+            "admin", "password", is_staff=True
+        )
         self.client.force_authenticate(self.user)
 
     def test_create_airplane(self):

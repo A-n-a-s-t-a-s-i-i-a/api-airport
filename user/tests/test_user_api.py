@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
 
+
 class UserTests(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -27,19 +28,27 @@ class UserTests(TestCase):
 
     def test_login_user(self):
         """Test user can log in and get an auth token"""
-        response = self.client.post("/api/user/token/", {
-            "username": self.user_data["username"],
-            "password": self.user_data["password"]
-        }, format="json")
+        response = self.client.post(
+            "/api/user/token/",
+            {
+                "username": self.user_data["username"],
+                "password": self.user_data["password"],
+            },
+            format="json",
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("access", response.data)  # Check for JWT access token
 
     def test_manage_user(self):
         """Test retrieving and updating the authenticated user"""
-        response = self.client.post("/api/user/token/", {
-            "username": self.user_data["username"],
-            "password": self.user_data["password"]
-        }, format="json")
+        response = self.client.post(
+            "/api/user/token/",
+            {
+                "username": self.user_data["username"],
+                "password": self.user_data["password"],
+            },
+            format="json",
+        )
         token = response.data["access"]
 
         self.client.credentials(HTTP_AUTHORIZATION="Bearer " + token)
@@ -48,7 +57,11 @@ class UserTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["username"], self.user_data["username"])
 
-        new_data = {"username": "updateduser", "email": "updated@example.com", "password": "newpassword"}
+        new_data = {
+            "username": "updateduser",
+            "email": "updated@example.com",
+            "password": "newpassword",
+        }
         response = self.client.put("/api/user/me/", new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["username"], "updateduser")

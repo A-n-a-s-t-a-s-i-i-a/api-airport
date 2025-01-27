@@ -68,12 +68,14 @@ class Flight(models.Model):
     crew = models.ManyToManyField(Crew)
 
     def __str__(self):
-        return f"Flight on {self.departure_time} from {self.route.source} to {self.route.destination}"
+        return (f"Flight on {self.departure_time} "
+                f"from {self.route.source} to {self.route.destination}")
 
 
 class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
 
     def __str__(self):
         return f"Order {self.id} by {self.user}"
@@ -83,7 +85,8 @@ class Ticket(models.Model):
     row = models.IntegerField()
     seat = models.IntegerField()
     flight = models.ForeignKey(Flight, on_delete=models.CASCADE)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="tickets")
+    order = models.ForeignKey(Order, on_delete=models.CASCADE,
+                              related_name="tickets")
 
     class Meta:
         unique_together = ("row", "seat", "flight")
@@ -96,18 +99,22 @@ class Ticket(models.Model):
         return f"row:{self.row}-seat:{self.seat}"
 
     @staticmethod
-    def validate_row_seat(row: int, seat: int, rows: int,
-                          seats_in_row: int, error_to_raise):
+    def validate_row_seat(
+        row: int, seat: int, rows: int, seats_in_row: int, error_to_raise
+    ):
         if not (1 <= row <= rows):
             raise error_to_raise(f"row must be in range (1, {rows})")
         if not (1 <= seat <= seats_in_row):
             raise error_to_raise(f"seat must be in range (1, {seats_in_row})")
 
     def clean(self):
-        Ticket.validate_row_seat(self.row, self.seat,
-                                 self.flight.airplane.rows,
-                                 self.flight.airplane.seats_in_row,
-                                 ValueError)
+        Ticket.validate_row_seat(
+            self.row,
+            self.seat,
+            self.flight.airplane.rows,
+            self.flight.airplane.seats_in_row,
+            ValueError,
+        )
 
     def save(self, *args, **kwargs):
         self.full_clean()

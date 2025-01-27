@@ -5,20 +5,39 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
-from airport.models import Airport, Route, AirplaneType, Airplane, Crew, Order, Ticket, Flight
-from airport.serializers import (AirportSerializer, RouteSerializer,
-                                 AirplaneTypeSerializer, AirplaneSerializer,
-                                 CrewSerializer, OrderSerializer,
-                                 TicketSerializer, FlightSerializer,
-                                 RouteListSerializer, AirplaneListSerializer,
-                                 FlightListSerializer, TicketListSerializer, RouteRetrieveSerializer,
-                                 AirplaneRetrieveSerializer, FlightRetrieveSerializer, TicketRetrieveSerializer)
+from airport.models import (
+    Airport,
+    Route,
+    AirplaneType,
+    Airplane,
+    Crew,
+    Order,
+    Ticket,
+    Flight,
+)
+from airport.serializers import (
+    AirportSerializer,
+    RouteSerializer,
+    AirplaneTypeSerializer,
+    AirplaneSerializer,
+    CrewSerializer,
+    OrderSerializer,
+    TicketSerializer,
+    FlightSerializer,
+    RouteListSerializer,
+    AirplaneListSerializer,
+    FlightListSerializer,
+    TicketListSerializer,
+    RouteRetrieveSerializer,
+    AirplaneRetrieveSerializer,
+    FlightRetrieveSerializer,
+    TicketRetrieveSerializer,
+)
 
 
 class AirportViewSet(viewsets.ModelViewSet):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
-
 
 
 class RouteViewSet(viewsets.ModelViewSet):
@@ -64,7 +83,9 @@ class AirplaneViewSet(viewsets.ModelViewSet):
         seats_in_row = self.request.query_params.get("seats_in_row")
 
         if airplane_type:
-            queryset = queryset.filter(airplane_type__name__icontains=airplane_type)
+            queryset = queryset.filter(
+                airplane_type__name__icontains=airplane_type
+            )
 
         if seats_in_row:
             seats = self._params_to_ints(seats_in_row)
@@ -86,12 +107,11 @@ class AirplaneViewSet(viewsets.ModelViewSet):
                 "seats_in_row",
                 OpenApiTypes.STR,
                 description="Filtering by an array of seats (comma separated)",
-            )
+            ),
         ]
     )
-
     def list(self, request):
-        """ List all available airplanes """
+        """List all available airplanes"""
         return super().list(request)
 
 
@@ -112,8 +132,12 @@ class FlightViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.action in ["list", "retrieve"]:
-            return (self.queryset.prefetch_related("crew")
-                    .annotate(available_seats=F("airplane__rows") *F("airplane__seats_in_row") - Count("ticket")))
+            return self.queryset.prefetch_related("crew").annotate(
+                available_seats=(
+                    F("airplane__rows") * F("airplane__seats_in_row")
+                    - Count("ticket")
+                )
+            )
         return self.queryset
 
 
@@ -146,7 +170,7 @@ class TicketViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         return Response(
-            {"detail": "Tickets cannot be created directly. Use the Order endpoint."},
-            status=status.HTTP_400_BAD_REQUEST
+            {"detail": "Tickets cannot be created directly. "
+                       "Use the Order endpoint."},
+            status=status.HTTP_400_BAD_REQUEST,
         )
-
