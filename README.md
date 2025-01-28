@@ -127,3 +127,16 @@ curl -X GET http://127.0.0.1:8000/api/airport/flights/ \
 - **Admin Users**: Full access to all endpoints.
 - **Authenticated Users**: Read-only access to most endpoints.
 - **Unauthenticated Users**: Access to registration and token endpoints only.
+
+
+## API Endpoints Preview
+
+![Airport Roots](project_screenshots/airport-roots.png)
+![Airplane List](project_screenshots/airplane-list.png)
+![Airplane Type List](project_screenshots/airplane-type-list.png)
+![Airport List](project_screenshots/airport-list.png)
+![Flight List](project_screenshots/flight-list.png)
+![Flight Instance](project_screenshots/flight-instance.png)
+![Order List](project_screenshots/order-list.png)
+![User Register](project_screenshots/user-register.png)
+![User Token](project_screenshots/user-token.png)
