@@ -43,7 +43,7 @@ AirportAPI is a REST API service designed for managing airport-related data, inc
 
 ## Usage
 
-After starting the server, you can access the Swagger documentation at: [http://127.0.0.1:8000/api/schema/swagger-ui/](http://127.0.0.1:8000/api/schema/swagger-ui/)
+After starting the server, you can access the Swagger documentation at: [http://127.0.0.1:8000/api/schema/swagger/](http://127.0.0.1:8000/api/schema/swagger/)
 
 ### Example Requests
 
